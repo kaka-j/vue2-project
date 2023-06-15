@@ -11,8 +11,8 @@
                         alt=""></el-image>
                 </template>
             </el-table-column>
-            <el-table-column prop="originprice" label="商品原件" width="180" align="center"></el-table-column>
-            <el-table-column prop="nowprice" label="商品现件" width="180" align="center">
+            <el-table-column prop="originprice" label="商品原价" width="180" align="center"></el-table-column>
+            <el-table-column prop="nowprice" label="商品现价" width="180" align="center">
                 <template v-slot="{row}">
                     <span v-if="row.discount < 10">{{((row.originprice * row.discount)/10).toFixed(2)}}</span>
                     <span v-else>暂无折扣</span>  

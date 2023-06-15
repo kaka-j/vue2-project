@@ -14,26 +14,9 @@
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
-
       <el-container>
         <el-aside width="200px"  style="background-color: rgb(238, 241, 246)">
-          <el-menu router :default-active="$route.path" :unipque-opend="true">
-            <el-menu-item index="/content">
-              <i class="el-icon-menu"></i>首页
-            </el-menu-item>
-            <el-submenu index="/product">
-              <template slot="title"><i class="el-icon-s-goods"></i>商品管理</template>
-              <el-menu-item index="/product/productList">商品列表</el-menu-item>
-              <el-menu-item index="/product/productseach">商品列表</el-menu-item>
-            </el-submenu>
-
-            <el-submenu index="/banner">
-              <template slot="title"><i class="el-icon-s-tools"></i>轮播管理</template>
-              <el-menu-item index="/banner/bannerAdd">轮播新增</el-menu-item>
-              <el-menu-item index="/banner/bannerList">轮播列表</el-menu-item>
-              <el-menu-item index="/banner/bannerShow">轮播展示</el-menu-item>
-            </el-submenu>
-          </el-menu>
+          <aside-menu></aside-menu>
         </el-aside>
 
         <el-main>
@@ -47,6 +30,7 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
+import AsideMenu from "./Aside"
 export default {
   name: 'HomeView',
   data() {
@@ -56,7 +40,7 @@ export default {
       address: '上海市普陀区金沙江路 1518 弄'
     };
     return {
-      tableData: Array(20).fill(item)
+      tableData: Array(20).fill(item),
     }
   },
   methods: {
@@ -66,7 +50,7 @@ export default {
         this.exitAndUpdateInfo();
         this.$router.push('/login');
       }
-    }
+    },
   },
   computed: {
     ...mapGetters(['isLogin']),
@@ -76,7 +60,6 @@ export default {
     this.getAndUpdateAuthorityInfo();
   },
   mounted() {
-    console.log(this.isLogin);
     if (!this.isLogin) {
       this.$message({
         message: '您还没有登录，请先登录',
@@ -85,11 +68,10 @@ export default {
       });
       this.$router.push({ name: 'login', query: { ReturnUrl: this.$route.fullPath } });
     }
-
   },
-
-
-
+  components:{
+    AsideMenu,
+  }
 }
 </script>
 

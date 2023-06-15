@@ -1,85 +1,68 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/Home'
-import LoginView from '../views/Login'
-import NotFoundView from '../views/NotFound'
-import HomeContentView from '../views/Home/Content'
-import ProductListView from '../views/Product/ProductList'
-import ProductSeachView from '../views/Product/ProductSeach'
-import BannerAddView from '../views/Banner/BannerAdd'
-import BannerListView from '../views/Banner/BannerList'
-import BannerShowView from '../views/Banner/BannerShow'
+import routes from './router'
+import store from "@/store";
+import { Message } from 'element-ui';
+
 
 Vue.use(VueRouter)
 
-const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView,
-    children:[
-      {
-        path:'',
-        redirect:'/content'
-      },
-      {
-        path: '/content',
-        name: 'content',
-        component: HomeContentView
-      },
-      {
-        path:'/product/productList',
-        name:'productList',
-        component:ProductListView
-      },
-      {
-        path:'/product/productSeach',
-        name:'productSeach',
-        component:ProductSeachView
-      },
-      {
-        path:'/banner/bannerAdd',
-        name:'bannerAdd',
-        component:BannerAddView
-      },
-      {
-        path:'/banner/bannerList',
-        name:'bannerList',
-        component:BannerListView
-      },
-      {
-        path:'/banner/bannerShow',
-        name:'bannerShow',
-        component:BannerShowView
-      },
-      
-    ]
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: LoginView
-  },
-  {
-    path: '/404',
-    name: 'not-found',
-    component: NotFoundView
-  },
-  {
-    path: '*',
-    redirect:'/404'
-  },
-  // {
-  //   path: '/about',
-  //   name: 'about',
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  // }
-]
 
-const router = new VueRouter({
+
+const router = new VueRouter({ 
   mode: 'hash',
   base: process.env.BASE_URL,
   routes
 })
+
+
+
+let whiteList = ["/login","/404"]; //白名单
+let count = 0; //变量
+
+// router.beforeEach(function(to,from,next){
+//   store.dispatch("getAndUpdateAuthorityInfo"); //页面跳转时解析数据
+//   next();
+// })
+
+router.beforeEach((to,from,next)=>{
+
+  if(!whiteList.includes(to.path)){ //判断白名单
+   if(count == 0){
+    store.dispatch("getAndUpdateAuthorityInfo");
+    count++;
+   }
+    next();
+  }else{
+    next();
+  }
+})
+ 
+router.beforeEach(function(to,from,next){
+  if(!whiteList.includes(to.path)){  //判断白名单
+   if(store.getters.isLogin){  //判断登录状态
+   let checkedkeys = store.state.userInfo.checkedkeys;
+   let role = store.state.userInfo.role;
+   if(role == 1){   //如果是超级管理员直接访问--admin里没有checkedkeys的值
+    next();
+   }else{
+    if(checkedkeys.includes(to.path)){   //判断跳转的路由是否是当前用户权限菜单里所有的
+      next();   //如果是就跳转
+     }else{
+      next(false);
+      Message({message:'您的权限不够请先充值提高权限', type:'error'})
+     }
+   }
+  
+   }else{
+    router.push({path:'/login',query:{ReturnUrl:router.currentRoute.fullPath}})
+    Message({message:'您还没有登录，请先登录', type:'warning'})
+    // next();
+   }
+   }else{
+     next();
+   }
+})
+
 
 export default router
